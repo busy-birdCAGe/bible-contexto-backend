@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Backend for the Prayer Request App
+
+Parameters:
+  env:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - prod
+  frontEndBucket:
+    Type: String
+    Default: bible-contexto-frontend
+
+Resources:
+  App:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      MemorySize: 512
+      Timeout: 300
+      Environment:
+        Variables:
+          BACKEND_BUCKET: !Ref BackendBucket
+          FRONTEND_BUCKET: !Sub "${env}-${frontEndBucket}"
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: ./
+      DockerTag: python3.8-v1
+
+  BackendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${env}-bible-contexto-backend"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+
+  BackendBucketBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref BackendBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: "*"
+            Action: "s3:GetObject"
+            Resource: !Join ["", ["arn:aws:s3:::", !Ref BackendBucket, "/*"]]

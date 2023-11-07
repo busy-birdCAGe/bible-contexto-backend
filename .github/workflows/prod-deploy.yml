@@ -1,0 +1,28 @@
+name: Prod Deploy
+on:
+  push:
+    branches:
+      - master
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  Deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v3
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::679274284562:role/GitHubAction-AssumeRoleWithAction
+          role-session-name: dev-deploy-session
+          aws-region: us-east-1
+      - name: Install Sam CLI
+        uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+      - name: Sam Build
+        run: sam build --template-file "template.yaml" --use-container
+      - name: Sam Deploy
+        run: sam deploy --template-file "template.yaml" --stack-name "prod-bible-contexto" --parameter-overrides "env=prod frontEndBucket=bible-contexto-frontend" --no-confirm-changeset --no-fail-on-empty-changeset --resolve-s3 --region "us-east-1" --capabilities "CAPABILITY_IAM"
