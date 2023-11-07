@@ -17,17 +17,14 @@ Resources:
   App:
     Type: AWS::Serverless::Function
     Properties:
-      PackageType: Image
+      Handler: app.handler
+      Runtime: python3.9
       MemorySize: 512
       Timeout: 300
       Environment:
         Variables:
           BACKEND_BUCKET: !Ref BackendBucket
           FRONTEND_BUCKET: !Sub "${env}-${frontEndBucket}"
-    Metadata:
-      Dockerfile: Dockerfile
-      DockerContext: ./
-      DockerTag: python3.8-v1
 
   BackendBucket:
     Type: AWS::S3::Bucket

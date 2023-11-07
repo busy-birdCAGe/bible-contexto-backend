@@ -1,6 +1,5 @@
 import json
 import zipfile
-from scipy.spatial.distance import cosine
 import boto3
 import random
 from os import environ
@@ -29,8 +28,22 @@ def load_vectors():
 def choose_word(vectors):
     return random.choice(list(vectors.keys()))
     
+def dot_product(vector_a, vector_b):
+    return sum(x * y for x, y in zip(vector_a, vector_b))
+
+def magnitude(vector):
+    return sum(x ** 2 for x in vector) ** 0.5
+
 def compare_vectors(vector_a, vector_b):
-    return 1 - cosine(vector_a, vector_b)
+    dot = dot_product(vector_a, vector_b)
+    norm_a = magnitude(vector_a)
+    norm_b = magnitude(vector_b)
+
+    if norm_a == 0 or norm_b == 0:
+        return 0
+
+    cosine_similarity = dot / (norm_a * norm_b)
+    return cosine_similarity
 
 def get_sorted_list(base_word, vectors):
     similarity_scores = []
