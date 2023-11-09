@@ -5,8 +5,7 @@ import random
 from os import environ
 
 BUCKET = environ["BACKEND_BUCKET"]
-FRONTEND_BUCKET = environ["FRONTEND_BUCKET"]
-word_of_the_day_key = "word_of_the_day.ts"
+word_of_the_day_key = "word_of_the_day"
 vectors_zip = "vectors.zip"
 vectors_file = "vectors.json"
 
@@ -15,10 +14,10 @@ s3 = boto3.client('s3')
 def handler(event, context):
     vectors = load_vectors()
     word_of_the_day = choose_word(vectors)
-    set_word_of_the_day(word_of_the_day)
     if not word_exists(word_of_the_day):
         word_list = get_sorted_list(word_of_the_day, vectors)
         upload_words_to_s3(word_of_the_day, word_list)
+    set_word_of_the_day(word_of_the_day)
 
 def load_vectors():
     with zipfile.ZipFile(vectors_zip, 'r') as zip_ref:
@@ -64,4 +63,4 @@ def word_exists(key):
         return False
     
 def set_word_of_the_day(word):
-    s3.put_object(Bucket=BUCKET, Key=word_of_the_day_key, Body="export const word_of_the_day = " + word + ";")
+    s3.put_object(Bucket=BUCKET, Key=word_of_the_day_key, Body=word)

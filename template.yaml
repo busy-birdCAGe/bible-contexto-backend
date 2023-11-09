@@ -9,9 +9,6 @@ Parameters:
     AllowedValues:
       - dev
       - prod
-  frontEndBucket:
-    Type: String
-    Default: bible-contexto-frontend
 
 Resources:
   App:
@@ -19,12 +16,19 @@ Resources:
     Properties:
       Handler: app.handler
       Runtime: python3.9
-      MemorySize: 10240
+      MemorySize: 2048
       Timeout: 300
       Environment:
         Variables:
           BACKEND_BUCKET: !Ref BackendBucket
-          FRONTEND_BUCKET: !Sub "${env}-${frontEndBucket}"
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+          - Effect: Allow
+            Action: 
+              - s3:PutObject
+            Resource: 
+              - !Sub "arn:${AWS::Partition}:s3:::${BackendBucket}/*"
 
   BackendBucket:
     Type: AWS::S3::Bucket
