@@ -25,4 +25,4 @@ jobs:
       - name: Sam Build
         run: sam build --template-file "template.yaml" --use-container
       - name: Sam Deploy
-        run: sam deploy --template-file "template.yaml" --stack-name "dev-bible-contexto" --parameter-overrides "env=dev frontEndBucket=bible-contexto-frontend" --no-confirm-changeset --no-fail-on-empty-changeset --resolve-s3 --region "us-east-1" --capabilities "CAPABILITY_IAM"
+        run: sam deploy --template-file "template.yaml" --stack-name "dev-bible-contexto-backend" --parameter-overrides "env=dev frontEndBucket=bible-contexto-frontend" --no-confirm-changeset --no-fail-on-empty-changeset --resolve-s3 --region "us-east-1" --capabilities "CAPABILITY_IAM"
