@@ -39,6 +39,17 @@ Resources:
         BlockPublicPolicy: false
         IgnorePublicAcls: false
         RestrictPublicBuckets: false
+      CorsConfiguration:
+        CorsRules:
+          - AllowedOrigins:
+              - "*"
+            AllowedMethods:
+              - GET
+            AllowedHeaders:
+              - "*"
+            ExposedHeaders:
+              - "*"
+            MaxAge: 3000
 
   BackendBucketBucketPolicy:
     Type: AWS::S3::BucketPolicy
