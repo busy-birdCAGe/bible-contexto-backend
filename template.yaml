@@ -47,8 +47,6 @@ Resources:
               - GET
             AllowedHeaders:
               - "*"
-            ExposedHeaders:
-              - "*"
             MaxAge: 3000
 
   BackendBucketBucketPolicy:

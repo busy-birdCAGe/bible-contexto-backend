@@ -13,7 +13,7 @@ s3 = boto3.client('s3')
 
 def handler(event, context):
     vectors = load_vectors()
-    word_of_the_day = choose_word(vectors)
+    word_of_the_day = event.get("word") or choose_word(vectors)
     if not word_exists(word_of_the_day):
         word_list = get_sorted_list(word_of_the_day, vectors)
         upload_words_to_s3(word_of_the_day, word_list)
@@ -26,29 +26,18 @@ def load_vectors():
     
 def choose_word(vectors):
     return random.choice(list(vectors.keys()))
-    
-def dot_product(vector_a, vector_b):
-    return sum(x * y for x, y in zip(vector_a, vector_b))
 
-def magnitude(vector):
-    return sum(x ** 2 for x in vector) ** 0.5
+def dot(A,B): 
+    return (sum(a*b for a,b in zip(A,B)))
 
-def compare_vectors(vector_a, vector_b):
-    dot = dot_product(vector_a, vector_b)
-    norm_a = magnitude(vector_a)
-    norm_b = magnitude(vector_b)
-
-    if norm_a == 0 or norm_b == 0:
-        return 0
-
-    cosine_similarity = dot / (norm_a * norm_b)
-    return cosine_similarity
+def cosine_similarity(a,b):
+    return dot(a,b) / ( (dot(a,a) **.5) * (dot(b,b) ** .5) )
 
 def get_sorted_list(base_word, vectors):
     similarity_scores = []
     for word in vectors:
         if sum(vectors[word]) != 0:
-            similarity_scores.append([word, compare_vectors(vectors[base_word], vectors[word])])
+            similarity_scores.append([word, cosine_similarity(vectors[base_word], vectors[word])])
     sorted_list = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
     return [item[0] for item in sorted_list]
 
