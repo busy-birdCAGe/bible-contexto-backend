@@ -13,7 +13,8 @@ s3 = boto3.client('s3')
 
 def handler(event, context):
     vectors = load_vectors()
-    word_of_the_day = event.get("word") or choose_word(vectors)
+    words = load_word_list()
+    word_of_the_day = event.get("word") or choose_word(words)
     if not word_exists(word_of_the_day):
         word_list = get_sorted_list(word_of_the_day, vectors)
         upload_words_to_s3(word_of_the_day, word_list)
@@ -23,9 +24,13 @@ def load_vectors():
     with zipfile.ZipFile(vectors_zip, 'r') as zip_ref:
         with zip_ref.open(vectors_file) as f:
             return json.loads(f.read())
+        
+def load_word_list():
+    with open("words.csv", "r") as f:
+        return f.read().split("\n")
     
-def choose_word(vectors):
-    return random.choice(list(vectors.keys()))
+def choose_word(words):
+    return random.choice(words)
 
 def dot(A,B): 
     return (sum(a*b for a,b in zip(A,B)))

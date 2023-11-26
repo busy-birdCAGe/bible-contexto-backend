@@ -29,6 +29,11 @@ Resources:
               - s3:PutObject
             Resource: 
               - !Sub "arn:${AWS::Partition}:s3:::${BackendBucket}/*"
+      Events:
+        WordOfTheDay:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 17 * * ? *)
 
   BackendBucket:
     Type: AWS::S3::Bucket
