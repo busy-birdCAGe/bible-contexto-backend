@@ -33,7 +33,7 @@ Resources:
         WordOfTheDay:
           Type: Schedule
           Properties:
-            Schedule: cron(0 17 * * ? *)
+            Schedule: cron(0 5 * * ? *)
 
   BackendBucket:
     Type: AWS::S3::Bucket
