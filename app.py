@@ -14,7 +14,10 @@ s3 = boto3.client('s3')
 def handler(event, context):
     vectors = load_vectors()
     words = load_word_list()
-    word_of_the_day = event.get("word") or choose_word(words)
+    previous_word_of_the_day = get_current_word_of_the_day()
+    word_of_the_day = previous_word_of_the_day
+    while word_of_the_day == previous_word_of_the_day:
+        word_of_the_day = event.get("word") or choose_word(words)
     if not word_exists(word_of_the_day):
         word_list = get_sorted_list(word_of_the_day, vectors)
         upload_words_to_s3(word_of_the_day, word_list)
@@ -58,3 +61,6 @@ def word_exists(key):
     
 def set_word_of_the_day(word):
     s3.put_object(Bucket=BUCKET, Key=word_of_the_day_key, Body=word)
+
+def get_current_word_of_the_day():
+    return s3.get_object(Bucket=BUCKET, Key=word_of_the_day_key)["Body"].read().decode()
