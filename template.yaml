@@ -27,7 +27,7 @@ Resources:
           Statement:
           - Effect: Allow
             Action: 
-              - s3:PutObject
+              - s3:ListBucket
             Resource: 
               - !Sub "arn:${AWS::Partition}:s3:::${BackendBucket}/*"
       Events:
