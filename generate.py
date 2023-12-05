@@ -10,7 +10,7 @@ lambda_client = boto3.client('lambda', region_name="us-east-1")
 for word in words:
 
     lambda_client.invoke(
-        FunctionName="dev-bible-contexto-backend-Generator-Ak2F3Y2B6x0Z",
+        FunctionName="prod-bible-contexto-backend-Generator-xyYv4xsH5pZm",
         InvocationType='Event',
         Payload=json.dumps({"word": word})
     )
