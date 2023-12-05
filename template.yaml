@@ -27,10 +27,10 @@ Resources:
           Statement:
           - Effect: Allow
             Action: 
-              - s3:GetObject
-              - s3:PutObject
+              - s3:*
             Resource: 
               - !Sub "arn:${AWS::Partition}:s3:::${BackendBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${BackendBucket}"
       Events:
         WordOfTheDay:
           Type: Schedule
