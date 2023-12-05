@@ -11,13 +11,14 @@ Parameters:
       - prod
 
 Resources:
-  App:
+  Selector:
     Type: AWS::Serverless::Function
     Properties:
+      CodeUri: selector
       Handler: app.handler
       Runtime: python3.9
-      MemorySize: 2048
-      Timeout: 300
+      MemorySize: 128
+      Timeout: 30
       Environment:
         Variables:
           BACKEND_BUCKET: !Ref BackendBucket
@@ -34,6 +35,26 @@ Resources:
           Type: Schedule
           Properties:
             Schedule: cron(0 5 * * ? *)
+
+  Generator:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: generator
+      Handler: app.handler
+      Runtime: python3.9
+      MemorySize: 2048
+      Timeout: 90
+      Environment:
+        Variables:
+          BACKEND_BUCKET: !Ref BackendBucket
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+          - Effect: Allow
+            Action: 
+              - s3:PutObject
+            Resource: 
+              - !Sub "arn:${AWS::Partition}:s3:::${BackendBucket}/*"
 
   BackendBucket:
     Type: AWS::S3::Bucket
