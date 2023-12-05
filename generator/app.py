@@ -1,31 +1,26 @@
 import json
 import zipfile
 import boto3
-import random
 from os import environ
+from uuid import uuid4
 
 BUCKET = environ["BACKEND_BUCKET"]
-word_of_the_day_key = "word_of_the_day"
 vectors_zip = "vectors.zip"
 vectors_file = "vectors.json"
 
 s3 = boto3.client('s3')
 
 def handler(event, context):
+    word = event["word"]
     vectors = load_vectors()
-    word_of_the_day = event.get("word") or choose_word(vectors)
-    if not word_exists(word_of_the_day):
-        word_list = get_sorted_list(word_of_the_day, vectors)
-        upload_words_to_s3(word_of_the_day, word_list)
-    set_word_of_the_day(word_of_the_day)
+    word_list = get_sorted_list(word, vectors)
+    key = str(uuid4())
+    upload_words_to_s3(key, word_list)
 
 def load_vectors():
     with zipfile.ZipFile(vectors_zip, 'r') as zip_ref:
         with zip_ref.open(vectors_file) as f:
             return json.loads(f.read())
-    
-def choose_word(vectors):
-    return random.choice(list(vectors.keys()))
 
 def dot(A,B): 
     return (sum(a*b for a,b in zip(A,B)))
@@ -43,13 +38,3 @@ def get_sorted_list(base_word, vectors):
 
 def upload_words_to_s3(base_word, word_list):
     s3.put_object(Bucket=BUCKET, Key=base_word, Body=",".join(word_list))
-
-def word_exists(key):
-    try:
-        s3.head_object(Bucket=BUCKET, Key=key)
-        return True
-    except Exception:
-        return False
-    
-def set_word_of_the_day(word):
-    s3.put_object(Bucket=BUCKET, Key=word_of_the_day_key, Body=word)
