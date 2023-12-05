@@ -23,4 +23,7 @@ def set_key_of_the_day(word):
     s3.put_object(Bucket=BUCKET, Key=KEYOFTHEDAYKEY, Body=word)
 
 def get_current_key_of_the_day():
-    return s3.get_object(Bucket=BUCKET, Key=KEYOFTHEDAYKEY)["Body"].read().decode()
+    try:
+        return s3.get_object(Bucket=BUCKET, Key=KEYOFTHEDAYKEY)["Body"].read().decode()
+    except:
+        return ""
