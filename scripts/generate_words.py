@@ -24,7 +24,7 @@ with zipfile.ZipFile(vectors_zip, 'r') as zip_ref:
 lambda_client = boto3.client('lambda', region_name="us-east-1")
 
 word_to_id_mapping = {}
-for word in vectors.keys():
+for word in vectors:
     word_id = str(uuid4())
     lambda_client.invoke(
         FunctionName="dev-bible-contexto-backend-Generator-Ak2F3Y2B6x0Z",
@@ -32,6 +32,7 @@ for word in vectors.keys():
         Payload=json.dumps({"word": word, "id": word_id})
     )
     word_to_id_mapping[word] = word_id
+    print(word)
     sleep(0.1)
 
 s3.put_object(Bucket=backend_bucket, Key="word_to_id_mapping", Body=json.dumps(word_to_id_mapping))

@@ -1,0 +1,1 @@
+aws s3 sync s3://dev-bible-contexto-backend s3://prod-bible-contexto-backend
