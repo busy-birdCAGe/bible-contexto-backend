@@ -2,7 +2,6 @@ import json
 import zipfile
 import boto3
 from os import environ
-from uuid import uuid4
 
 BUCKET = environ["BACKEND_BUCKET"]
 vectors_zip = "vectors.zip"
@@ -12,10 +11,10 @@ s3 = boto3.client('s3')
 
 def handler(event, context):
     word = event["word"]
+    word_id = event["id"]
     vectors = load_vectors()
     word_list = get_sorted_list(word, vectors)
-    key = str(uuid4())
-    upload_words_to_s3(key, word_list)
+    upload_words_to_s3(word_id, word_list)
 
 def load_vectors():
     with zipfile.ZipFile(vectors_zip, 'r') as zip_ref:
