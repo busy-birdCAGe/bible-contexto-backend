@@ -16,7 +16,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: arn:aws:iam::679274284562:role/GitHubAction-AssumeRoleWithAction
-          role-session-name: dev-deploy-session
+          role-session-name: prod-deploy-session
           aws-region: us-east-1
       - name: Install Sam CLI
         uses: aws-actions/setup-sam@v2
@@ -26,3 +26,6 @@ jobs:
         run: sam build --template-file "template.yaml" --use-container
       - name: Sam Deploy
         run: sam deploy --stack-name "prod-bible-contexto-backend" --parameter-overrides "env=prod" --no-confirm-changeset --no-fail-on-empty-changeset --resolve-s3 --region "us-east-1" --capabilities "CAPABILITY_IAM"
+      - name:  Upload Data To S3
+        run: |
+          aws s3 cp game_words s3://prod-bible-contexto-backend/game_words --recursive
