@@ -28,4 +28,4 @@ jobs:
         run: sam deploy --stack-name "prod-bible-contexto-backend" --parameter-overrides "env=prod" --no-confirm-changeset --no-fail-on-empty-changeset --resolve-s3 --region "us-east-1" --capabilities "CAPABILITY_IAM"
       - name:  Upload Data To S3
         run: |
-          aws s3 cp game_words s3://prod-bible-contexto-backend/game_words --recursive
+          aws s3 cp data s3://dev-bible-contexto-backend --recursive
