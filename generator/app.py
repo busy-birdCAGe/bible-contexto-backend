@@ -12,9 +12,10 @@ s3 = boto3.client('s3')
 def handler(event, context):
     word = event["word"]
     word_id = event["id"]
+    language = event["language"]
     vectors = load_vectors()
     word_list = get_sorted_list(word, vectors)
-    upload_words_to_s3(word_id, word_list)
+    upload_words_to_s3(language+"/"+word_id, word_list)
 
 def load_vectors():
     with zipfile.ZipFile(vectors_zip, 'r') as zip_ref:
