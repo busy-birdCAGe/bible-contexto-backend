@@ -3,7 +3,7 @@ import random
 from os import environ
 import json
 
-LANGUAGE = environ["english"]
+LANGUAGE = environ["language"]
 BUCKET = environ["BACKEND_BUCKET"]
 KEYOFTHEDAYKEY = "key_of_the_day"
 WORDTOIDMAPPING = "word_to_id_mapping"
