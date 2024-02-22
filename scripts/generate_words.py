@@ -4,18 +4,20 @@ from time import sleep
 import zipfile
 from uuid import uuid4
 
+language = "english"
 backend_bucket = "dev-bible-contexto-backend"
 vectors_zip = "generator\\vectors.zip"
 vectors_file = "vectors.json"
 
-s3 = boto3.client('s3')
-objects = s3.list_objects_v2(Bucket=backend_bucket)
-if 'Contents' in objects:
-    for obj in objects['Contents']:
-        s3.delete_object(Bucket=backend_bucket, Key=obj['Key'])
-        print(f"Deleted object: {obj['Key']}")
-else:
-    print("No objects found in the bucket.")
+s3 = boto3.resource('s3')
+bucket = s3.Bucket(backend_bucket)
+
+for obj in bucket.objects.filter(Prefix=language):
+    try:
+        obj.delete()
+        print(f"Deleted: {obj.key}")
+    except Exception as e:
+        print(f"Error deleting {obj.key}: {e}")
 
 with zipfile.ZipFile(vectors_zip, 'r') as zip_ref:
     with zip_ref.open(vectors_file) as f:
@@ -35,4 +37,12 @@ for word in vectors:
     print(word)
     sleep(0.1)
 
-s3.put_object(Bucket=backend_bucket, Key="word_to_id_mapping", Body=json.dumps(word_to_id_mapping))
+s3.put_object(Bucket=backend_bucket, Key=language+"/word_to_id_mapping", Body=json.dumps(word_to_id_mapping))
+
+s3_client = boto3.client('s3')
+
+with open("data/"+language+"/guess_words.txt", "r") as f:
+    s3_client.put_object(Bucket=backend_bucket, Key=language+"/"+"guess_words.txt", Body=f.read())
+
+with open("data/"+language+"/stop_words.txt", "r") as f:
+    s3_client.put_object(Bucket=backend_bucket, Key=language+"/"+"stop_words.txt", Body=f.read())

@@ -3,6 +3,7 @@ import random
 from os import environ
 import json
 
+LANGUAGE = environ["english"]
 BUCKET = environ["BACKEND_BUCKET"]
 KEYOFTHEDAYKEY = "key_of_the_day"
 WORDTOIDMAPPING = "word_to_id_mapping"
@@ -27,13 +28,13 @@ def handler(event, context):
     print(f"Word of the day: {word_of_the_day}")
     
 def set_key_of_the_day(word):
-    s3.put_object(Bucket=BUCKET, Key=KEYOFTHEDAYKEY, Body=word)
+    s3.put_object(Bucket=BUCKET, Key=LANGUAGE + "/" + KEYOFTHEDAYKEY, Body=word)
 
 def get_current_key_of_the_day():
     try:
-        return s3.get_object(Bucket=BUCKET, Key=KEYOFTHEDAYKEY)["Body"].read().decode()
+        return s3.get_object(Bucket=BUCKET, Key=LANGUAGE + "/" + KEYOFTHEDAYKEY)["Body"].read().decode()
     except:
         return ""
     
 def get_word_to_id_mapping():
-    return json.loads(s3.get_object(Bucket=BUCKET, Key=WORDTOIDMAPPING)["Body"].read().decode())
+    return json.loads(s3.get_object(Bucket=BUCKET, Key=LANGUAGE + "/" + WORDTOIDMAPPING)["Body"].read().decode())
