@@ -24,7 +24,7 @@ s3 = boto3.resource('s3')
 bucket = s3.Bucket(backend_bucket)
 
 keys = []
-for obj in bucket.objects.filter(Prefix=language):
+for obj in bucket.objects.all():
     keys.append(obj.key)
 
 bulk_delete_s3_objects(backend_bucket, keys)
@@ -36,7 +36,7 @@ with zipfile.ZipFile(vectors_zip, 'r') as zip_ref:
 lambda_client = boto3.client('lambda', region_name="us-east-1")
 
 word_to_id_mapping = {}
-for word in [list(vectors.keys())[0]]:
+for word in vectors:
     word_id = str(uuid4())
     lambda_client.invoke(
         FunctionName="dev-bible-contexto-backend-Generator-Ak2F3Y2B6x0Z",
