@@ -26,3 +26,6 @@ jobs:
         run: sam build --template-file "template.yaml" --use-container
       - name: Sam Deploy
         run: sam deploy --stack-name "dev-bible-contexto-backend" --parameter-overrides "env=dev" --no-confirm-changeset --no-fail-on-empty-changeset --resolve-s3 --region "us-east-1" --capabilities "CAPABILITY_IAM"
+      - name:  Upload Data To S3
+        run: |
+          aws s3 cp data s3://dev-bible-contexto-backend --recursive

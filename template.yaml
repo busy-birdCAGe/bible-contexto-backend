@@ -11,7 +11,7 @@ Parameters:
       - prod
 
 Resources:
-  Selector:
+  EnglishWordSelector:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: selector
@@ -22,6 +22,7 @@ Resources:
       Environment:
         Variables:
           BACKEND_BUCKET: !Ref BackendBucket
+          language: "english"
       Policies:
         - Version: "2012-10-17"
           Statement:

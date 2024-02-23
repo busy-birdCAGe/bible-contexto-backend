@@ -1,21 +1,33 @@
 import boto3
 import json
-from time import sleep
 import zipfile
 from uuid import uuid4
 
+language = "english"
 backend_bucket = "dev-bible-contexto-backend"
 vectors_zip = "generator\\vectors.zip"
 vectors_file = "vectors.json"
 
-s3 = boto3.client('s3')
-objects = s3.list_objects_v2(Bucket=backend_bucket)
-if 'Contents' in objects:
-    for obj in objects['Contents']:
-        s3.delete_object(Bucket=backend_bucket, Key=obj['Key'])
-        print(f"Deleted object: {obj['Key']}")
-else:
-    print("No objects found in the bucket.")
+def bulk_delete_s3_objects(bucket_name, keys):
+    s3 = boto3.client('s3')
+    deleted_objects = []
+    for i in range(0, len(keys), 1000):
+        delete_batch = [{'Key': key} for key in keys[i:i+1000]]
+        response = s3.delete_objects(
+            Bucket=bucket_name,
+            Delete={'Objects': delete_batch}
+        )
+        deleted_objects.extend(obj['Key'] for obj in response.get('Deleted', []))
+    return deleted_objects
+
+s3 = boto3.resource('s3')
+bucket = s3.Bucket(backend_bucket)
+
+keys = []
+for obj in bucket.objects.all():
+    keys.append(obj.key)
+
+bulk_delete_s3_objects(backend_bucket, keys)
 
 with zipfile.ZipFile(vectors_zip, 'r') as zip_ref:
     with zip_ref.open(vectors_file) as f:
@@ -29,10 +41,17 @@ for word in vectors:
     lambda_client.invoke(
         FunctionName="dev-bible-contexto-backend-Generator-Ak2F3Y2B6x0Z",
         InvocationType='Event',
-        Payload=json.dumps({"word": word, "id": word_id})
+        Payload=json.dumps({"word": word, "id": word_id, "language": language})
     )
     word_to_id_mapping[word] = word_id
     print(word)
-    sleep(0.1)
 
-s3.put_object(Bucket=backend_bucket, Key="word_to_id_mapping", Body=json.dumps(word_to_id_mapping))
+s3_client = boto3.client('s3')
+
+s3_client.put_object(Bucket=backend_bucket, Key=language+"/word_to_id_mapping", Body=json.dumps(word_to_id_mapping))
+
+with open("data/"+language+"/guess_words.txt", "r") as f:
+    s3_client.put_object(Bucket=backend_bucket, Key=language+"/"+"guess_words.txt", Body=f.read())
+
+with open("data/"+language+"/stop_words.txt", "r") as f:
+    s3_client.put_object(Bucket=backend_bucket, Key=language+"/"+"stop_words.txt", Body=f.read())
