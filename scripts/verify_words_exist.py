@@ -1,7 +1,7 @@
 import json
 import zipfile
 
-with zipfile.ZipFile("generator/vectors.zip", 'r') as zip_ref:
+with zipfile.ZipFile("generator/vectors/spanish.zip", 'r') as zip_ref:
     with zip_ref.open("vectors.json") as f:
         vectors = json.loads(f.read())
 

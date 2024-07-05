@@ -12,7 +12,7 @@ s3 = boto3.client('s3')
 
 def handler(event, context):
 
-    with open("words.csv", "r") as f:
+    with open(f"{LANGUAGE}.csv", "r") as f:
         words = f.read().split("\n")
 
     word_to_id_mapping = get_word_to_id_mapping()
@@ -25,7 +25,7 @@ def handler(event, context):
         key_of_the_day = word_to_id_mapping[word_of_the_day]
 
     set_key_of_the_day(key_of_the_day)
-    print(f"Word of the day: {word_of_the_day}")
+    print(f"[{LANGUAGE}] Word of the day: {word_of_the_day}")
     
 def set_key_of_the_day(word):
     s3.put_object(Bucket=BUCKET, Key=LANGUAGE + "/" + KEYOFTHEDAYKEY, Body=word)
