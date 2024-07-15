@@ -1,4 +1,5 @@
 import boto3
+from botocore.exceptions import ClientError
 import random
 from os import environ
 import json
@@ -7,6 +8,7 @@ LANGUAGE = environ["language"]
 BUCKET = environ["BACKEND_BUCKET"]
 KEYOFTHEDAYKEY = "key_of_the_day"
 WORDTOIDMAPPING = "word_to_id_mapping"
+DAILYGAMESKEY = "daily_games"
 
 s3 = boto3.client('s3')
 
@@ -25,6 +27,7 @@ def handler(event, context):
         key_of_the_day = word_to_id_mapping[word_of_the_day]
 
     set_key_of_the_day(key_of_the_day)
+    update_daily_games_list(key_of_the_day)
     print(f"[{LANGUAGE}] Word of the day: {word_of_the_day}")
     
 def set_key_of_the_day(word):
@@ -38,3 +41,16 @@ def get_current_key_of_the_day():
     
 def get_word_to_id_mapping():
     return json.loads(s3.get_object(Bucket=BUCKET, Key=LANGUAGE + "/" + WORDTOIDMAPPING)["Body"].read().decode())
+
+def update_daily_games_list(key_of_the_day):
+    try:
+        current_list = s3.get_object(Bucket=BUCKET, Key=LANGUAGE + "/" + DAILYGAMESKEY)["Body"].read().decode()
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'NoSuchKey':
+            current_list = ""
+        else:
+            raise e
+    lines = current_list.split("\n")
+    last_key = lines[-1].split(",")[0] if lines else "1"
+    lines.append(f"{int(last_key)+1},{key_of_the_day}")
+    s3.put_object(Bucket=BUCKET, Key=LANGUAGE + "/" + KEYOFTHEDAYKEY, Body="\n".join(lines))
