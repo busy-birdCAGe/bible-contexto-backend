@@ -51,6 +51,6 @@ def update_daily_games_list(key_of_the_day):
         else:
             raise e
     lines = current_list.split("\n")
-    last_key = lines[-1].split(",")[0] if lines else "1"
+    last_key = lines[-1].split(",")[0] if current_list else "1"
     lines.append(f"{int(last_key)+1},{key_of_the_day}")
     s3.put_object(Bucket=BUCKET, Key=LANGUAGE + "/" + KEYOFTHEDAYKEY, Body="\n".join(lines))
