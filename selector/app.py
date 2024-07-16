@@ -26,12 +26,8 @@ def handler(event, context):
         word_of_the_day = random.choice(words)
         key_of_the_day = word_to_id_mapping[word_of_the_day]
 
-    set_key_of_the_day(key_of_the_day)
     update_daily_games_list(key_of_the_day)
     print(f"[{LANGUAGE}] Word of the day: {word_of_the_day}")
-    
-def set_key_of_the_day(word):
-    s3.put_object(Bucket=BUCKET, Key=LANGUAGE + "/" + KEYOFTHEDAYKEY, Body=word)
 
 def get_current_key_of_the_day():
     try:
