@@ -3,9 +3,9 @@ import json
 import zipfile
 from uuid import uuid4
 
-language = "english"
+language = "spanish"
 backend_bucket = "dev-bible-contexto-backend"
-vectors_zip = "generator\\vectors.zip"
+vectors_zip = f"generator/vectors/{language}.zip"
 vectors_file = "vectors.json"
 
 def bulk_delete_s3_objects(bucket_name, keys):
